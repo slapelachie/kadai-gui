@@ -51,7 +51,7 @@ class MainWindow(Gtk.Window):
 
         # get actual resized dimensions instead of hard coding
         self.current_image_pixbuf = self.current_image_pixbuf.scale_simple(
-            480, 270, GdkPixbuf.InterpType.BILINEAR
+            650, 366, GdkPixbuf.InterpType.BILINEAR
         )
 
         self.current_image = Gtk.Image()
@@ -60,10 +60,10 @@ class MainWindow(Gtk.Window):
         update_button = Gtk.Button(label="Update")
         update_button.connect("clicked", self.on_update_clicked)
 
-        update_page.attach(self.current_image, 0, 0, 5, 1)
-        update_page.attach(browse_button, 0, 1, 1, 1)
-        update_page.attach(self.image_path_label, 1, 1, 2, 1)
-        update_page.attach(update_button, 0, 3, 1, 1)
+        update_page.attach(self.current_image, 0, 0, 4, 1)
+        update_page.attach(self.image_path_label, 0, 1, 4, 1)
+        update_page.attach(browse_button, 0, 2, 2, 1)
+        update_page.attach(update_button, 2, 2, 2, 1)
         # update_page.attach(label, 1, 1, 1, 1)
         # update_page.attach(switch, 0, 1, 1, 1)
 
@@ -94,13 +94,13 @@ class MainWindow(Gtk.Window):
 
         if response == Gtk.ResponseType.OK:
             self.image_path = dialog.get_filename()
-            self.image_path_label.set_text(resize_string(dialog.get_filename(), 30))
+            self.image_path_label.set_text(resize_string(dialog.get_filename(), 80))
 
         self.current_image_pixbuf = GdkPixbuf.Pixbuf.new_from_file(
             dialog.get_filename()
         )
         self.current_image_pixbuf = self.current_image_pixbuf.scale_simple(
-            480, 270, GdkPixbuf.InterpType.BILINEAR
+            650, 366, GdkPixbuf.InterpType.BILINEAR
         )
         self.current_image.set_from_pixbuf(self.current_image_pixbuf)
 
