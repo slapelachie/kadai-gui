@@ -6,11 +6,11 @@ from gi.repository import Gtk
 from .main_window import MainWindow
 
 
-def main():
+def main_gtk():
     win = MainWindow()
     win.show_all()
     Gtk.main()
 
 
 if __name__ == "__main__":
-    main()
+    main_gtk()
