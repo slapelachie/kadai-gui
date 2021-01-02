@@ -1,2 +1,1 @@
-Make options panel link up with config file
-Get engines from kadai, dont hard code
+Fix light theme issue where pallete does not update if light theme is enabled by default when light switch

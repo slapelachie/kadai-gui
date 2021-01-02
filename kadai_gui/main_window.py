@@ -2,6 +2,7 @@ import gi
 import os
 import kadai
 
+from kadai import themer
 from kadai.themer import Themer
 from kadai.config_handler import ConfigHandler
 
@@ -81,7 +82,7 @@ class MainWindow(Gtk.Window):
 
         engine_label = Gtk.Label("Engine")
 
-        engines = ("hue", "vibrance", "k_means")
+        engines = themer.getAvaliableEngines()
         engine_store = Gtk.ListStore(str)
         for engine in engines:
             engine_store.append([engine])
