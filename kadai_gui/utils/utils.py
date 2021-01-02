@@ -34,10 +34,16 @@ def getScaledDimensions(dimensions, new_width):
     return (scaled_width, scaled_height)
 
 
-def getPallete(image_path, engine):
+def getPallete(image_path, light_mode, engine):
     pallete = None
-    themer = Themer(image_path, kadai_config["data_directory"], config=kadai_config)
+    themer = Themer(
+        image_path, out_path=kadai_config["data_directory"], config=kadai_config
+    )
     themer.setEngine(engine)
+
+    if light_mode:
+        themer.enableLightTheme()
+
     try:
         pallete = themer.getColorPallete()
     except kadai.utils.FileUtils.noPreGenThemeError:
@@ -52,11 +58,13 @@ def getColorsFromPallete(pallete):
     return [kadai.utils.ColorUtils.hex_to_rgb(color) for color in pallete]
 
 
-def generatePalleteImage(image_path, engine=kadai_config["engine"]):
+def generatePalleteImage(
+    image_path, light_mode=kadai_config["light"], engine=kadai_config["engine"]
+):
     pallete_segment_width = int((700 * 0.9) / 8)
     pallete_segment_height = 30
 
-    pallete = getPallete(image_path, engine)
+    pallete = getPallete(image_path, light_mode, engine)
     colors = getColorsFromPallete(pallete)
 
     pallete_image = Image.new(

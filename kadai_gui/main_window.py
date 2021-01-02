@@ -25,6 +25,7 @@ class MainWindow(Gtk.Window):
         self.padding = 15
         self.width, self.height = 700, 500
         self.engine = "hue"
+        self.light_mode = False
 
         notebook = Gtk.Notebook()
         self.add(notebook)
@@ -52,7 +53,9 @@ class MainWindow(Gtk.Window):
         self.current_image = Gtk.Image()
         self.current_image.set_from_pixbuf(self.current_image_pixbuf)
 
-        pallete_image = utils.generatePalleteImage(self.image_path, self.engine)
+        pallete_image = utils.generatePalleteImage(
+            self.image_path, engine=self.engine, light_mode=self.light_mode
+        )
         self.pallete_image_pixbuf = scalePixbufImage(
             image2pixbuf(pallete_image), self.width - (self.padding * 4)
         )
@@ -74,6 +77,7 @@ class MainWindow(Gtk.Window):
 
         self.light_mode_switch = Gtk.Switch()
         self.light_mode_switch.set_active(False)
+        self.light_mode_switch.connect("notify::active", self.onLightModeSwitched)
 
         engine_label = Gtk.Label("Engine")
 
@@ -142,11 +146,13 @@ class MainWindow(Gtk.Window):
 
     def onUpdateClicked(self, widget):
         themer = Themer(
-            self.image_path, kadai_config["data_directory"], config=kadai_config
+            self.image_path,
+            out_path=kadai_config["data_directory"],
+            config=kadai_config,
         )
 
         themer.setEngine(self.engine)
-        if self.light_mode_switch.get_active():
+        if self.light_mode:
             themer.enableLightTheme()
 
         themer.update()
@@ -165,7 +171,19 @@ class MainWindow(Gtk.Window):
         engine, display_name = model[tree_iter][:2]
         self.engine = engine
 
-        pallete_image = utils.generatePalleteImage(self.image_path, self.engine)
+        pallete_image = utils.generatePalleteImage(
+            self.image_path, light_mode=self.light_mode, engine=self.engine
+        )
+        self.pallete_image_pixbuf = scalePixbufImage(
+            image2pixbuf(pallete_image), self.width - (self.padding * 4)
+        )
+        self.pallete_image.set_from_pixbuf(self.pallete_image_pixbuf)
+
+    def onLightModeSwitched(self, button, active):
+        self.light_mode = button.get_active()
+        pallete_image = utils.generatePalleteImage(
+            self.image_path, light_mode=self.light_mode, engine=self.engine
+        )
         self.pallete_image_pixbuf = scalePixbufImage(
             image2pixbuf(pallete_image), self.width - (self.padding * 4)
         )
