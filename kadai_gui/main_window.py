@@ -24,6 +24,7 @@ class MainWindow(Gtk.Window):
         )
         self.padding = 15
         self.width, self.height = 700, 500
+        self.engine = "hue"
 
         notebook = Gtk.Notebook()
         self.add(notebook)
@@ -51,7 +52,7 @@ class MainWindow(Gtk.Window):
         self.current_image = Gtk.Image()
         self.current_image.set_from_pixbuf(self.current_image_pixbuf)
 
-        pallete_image = utils.generatePalleteImage(self.image_path)
+        pallete_image = utils.generatePalleteImage(self.image_path, self.engine)
         self.pallete_image_pixbuf = scalePixbufImage(
             image2pixbuf(pallete_image), self.width - (self.padding * 4)
         )
@@ -69,13 +70,30 @@ class MainWindow(Gtk.Window):
 
         ### Options Page ###
 
-        label = Gtk.Label("Light Mode")
+        light_mode_label = Gtk.Label("Light Mode")
 
         self.light_mode_switch = Gtk.Switch()
         self.light_mode_switch.set_active(False)
 
-        options_page.attach(label, 0, 1, 1, 1)
-        options_page.attach(self.light_mode_switch, 1, 1, 1, 1)
+        engine_label = Gtk.Label("Engine")
+
+        engine_store = Gtk.ListStore(str, str)
+        engine_store.append(["hue", "Hue"])
+        engine_store.append(["vibrance", "Vibrance"])
+        engine_store.append(["k_means", "K-Means"])
+
+        self.engine_combo = Gtk.ComboBox.new_with_model(engine_store)
+        renderer_text = Gtk.CellRendererText()
+        self.engine_combo.pack_start(renderer_text, True)
+        self.engine_combo.add_attribute(renderer_text, "text", 1)
+        self.engine_combo.set_entry_text_column(1)
+        self.engine_combo.set_active(0)
+        self.engine_combo.connect("changed", self.onEngineChanged)
+
+        options_page.attach(light_mode_label, 0, 0, 1, 1)
+        options_page.attach(self.light_mode_switch, 1, 0, 1, 1)
+        options_page.attach(engine_label, 0, 1, 1, 1)
+        options_page.attach(self.engine_combo, 1, 1, 3, 1)
 
         self.set_border_width(self.padding)
         self.set_title("kadai-gtk")
@@ -114,7 +132,7 @@ class MainWindow(Gtk.Window):
         )
         self.current_image.set_from_pixbuf(self.current_image_pixbuf)
 
-        pallete_image = utils.generatePalleteImage(self.image_path)
+        pallete_image = utils.generatePalleteImage(self.image_path, self.engine)
         self.pallete_image_pixbuf = scalePixbufImage(
             image2pixbuf(pallete_image), self.width - (self.padding * 4)
         )
@@ -127,6 +145,7 @@ class MainWindow(Gtk.Window):
             self.image_path, kadai_config["data_directory"], config=kadai_config
         )
 
+        themer.setEngine(self.engine)
         if self.light_mode_switch.get_active():
             themer.enableLightTheme()
 
@@ -139,6 +158,12 @@ class MainWindow(Gtk.Window):
         filter_image.add_mime_type("image/png")
         filter_image.add_mime_type("image/webp")
         dialog.add_filter(filter_image)
+
+    def onEngineChanged(self, combo):
+        tree_iter = combo.get_active_iter()
+        model = combo.get_model()
+        engine, display_name = model[tree_iter][:2]
+        self.engine = engine
 
 
 def image2pixbuf(image):
