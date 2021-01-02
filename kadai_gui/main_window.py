@@ -165,6 +165,12 @@ class MainWindow(Gtk.Window):
         engine, display_name = model[tree_iter][:2]
         self.engine = engine
 
+        pallete_image = utils.generatePalleteImage(self.image_path, self.engine)
+        self.pallete_image_pixbuf = scalePixbufImage(
+            image2pixbuf(pallete_image), self.width - (self.padding * 4)
+        )
+        self.pallete_image.set_from_pixbuf(self.pallete_image_pixbuf)
+
 
 def image2pixbuf(image):
     data = image.tobytes()

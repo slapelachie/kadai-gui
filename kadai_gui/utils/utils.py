@@ -37,10 +37,10 @@ def getScaledDimensions(dimensions, new_width):
 def getPallete(image_path, engine):
     pallete = None
     themer = Themer(image_path, kadai_config["data_directory"], config=kadai_config)
+    themer.setEngine(engine)
     try:
         pallete = themer.getColorPallete()
     except kadai.utils.FileUtils.noPreGenThemeError:
-        themer.setEngine(engine)
         themer.generate()
         pallete = themer.getColorPallete()
 
