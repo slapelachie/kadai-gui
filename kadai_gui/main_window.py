@@ -24,8 +24,8 @@ class MainWindow(Gtk.Window):
         )
         self.padding = 15
         self.width, self.height = 700, 500
-        self.engine = "hue"
-        self.light_mode = False
+        self.engine = kadai_config["engine"]
+        self.light_mode = kadai_config["light"]
 
         notebook = Gtk.Notebook()
         self.add(notebook)
@@ -76,22 +76,21 @@ class MainWindow(Gtk.Window):
         light_mode_label = Gtk.Label("Light Mode")
 
         self.light_mode_switch = Gtk.Switch()
-        self.light_mode_switch.set_active(False)
+        self.light_mode_switch.set_active(kadai_config["light"])
         self.light_mode_switch.connect("notify::active", self.onLightModeSwitched)
 
         engine_label = Gtk.Label("Engine")
 
-        engine_store = Gtk.ListStore(str, str)
-        engine_store.append(["hue", "Hue"])
-        engine_store.append(["vibrance", "Vibrance"])
-        engine_store.append(["k_means", "K-Means"])
+        engines = ("hue", "vibrance", "k_means")
+        engine_store = Gtk.ListStore(str)
+        for engine in engines:
+            engine_store.append([engine])
 
         self.engine_combo = Gtk.ComboBox.new_with_model(engine_store)
         renderer_text = Gtk.CellRendererText()
         self.engine_combo.pack_start(renderer_text, True)
-        self.engine_combo.add_attribute(renderer_text, "text", 1)
-        self.engine_combo.set_entry_text_column(1)
-        self.engine_combo.set_active(0)
+        self.engine_combo.add_attribute(renderer_text, "text", 0)
+        self.engine_combo.set_active(engines.index(kadai_config["engine"]))
         self.engine_combo.connect("changed", self.onEngineChanged)
 
         options_page.attach(light_mode_label, 0, 0, 1, 1)
@@ -168,8 +167,12 @@ class MainWindow(Gtk.Window):
     def onEngineChanged(self, combo):
         tree_iter = combo.get_active_iter()
         model = combo.get_model()
-        engine, display_name = model[tree_iter][:2]
+        engine = model[tree_iter][0]
         self.engine = engine
+
+        kadai_config["engine"] = self.engine
+        configHandler.update(kadai_config)
+        configHandler.save()
 
         pallete_image = utils.generatePalleteImage(
             self.image_path, light_mode=self.light_mode, engine=self.engine
@@ -181,6 +184,11 @@ class MainWindow(Gtk.Window):
 
     def onLightModeSwitched(self, button, active):
         self.light_mode = button.get_active()
+
+        kadai_config["light"] = self.light_mode
+        configHandler.update(kadai_config)
+        configHandler.save()
+
         pallete_image = utils.generatePalleteImage(
             self.image_path, light_mode=self.light_mode, engine=self.engine
         )
